@@ -4,12 +4,23 @@ const STATUS = {
   private: "비공개",
 };
 
+function isLoggedIn() {
+  return Boolean(window.LabAuth && window.LabAuth.session && window.LabAuth.session.user);
+}
+
 function renderTool(tool) {
-  const ready = tool.status === "public" && tool.url;
+  const ready = Boolean(tool.url);
+  const memberOnly = tool.member_only !== false;
+  const loggedIn = isLoggedIn();
   const features = (tool.features || []).map((item) => `<li>${item}</li>`).join("");
-  const action = ready
-    ? `<a class="btn" href="${tool.url}" target="_blank" rel="noopener">실행하기</a>`
-    : `<span class="btn disabled" aria-disabled="true">실행 URL 준비 중</span>`;
+  let action = `<span class="btn disabled" aria-disabled="true">실행 URL 준비 중</span>`;
+  if (memberOnly && !loggedIn) {
+    action =
+      `<p class="field-hint">로그인 후 이용할 수 있습니다.</p>` +
+      `<a class="btn" href="login.html?next=tools.html">로그인</a>`;
+  } else if (ready && loggedIn) {
+    action = `<a class="btn" href="${tool.url}" target="_blank" rel="noopener">실행하기</a>`;
+  }
   return `
     <article class="tool" id="${tool.id}">
       <div class="tool-head">
@@ -35,4 +46,13 @@ async function loadTools() {
   root.innerHTML = (data.tools || []).map(renderTool).join("");
 }
 
-loadTools();
+function bootTools() {
+  loadTools();
+  document.addEventListener("lab-auth-changed", loadTools);
+}
+
+if (window.LabAuth && window.LabAuth.ready) {
+  window.LabAuth.ready.then(bootTools);
+} else {
+  bootTools();
+}

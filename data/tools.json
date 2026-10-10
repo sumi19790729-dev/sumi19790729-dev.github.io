@@ -3,10 +3,11 @@
   "tools": [
     {
       "id": "university-kpi-agentic-ai",
-      "name": "University KPI Agentic AI",
+      "name": "KPI 추천 AI",
       "version": "v1.0",
-      "status": "preparing",
-      "url": null,
+      "status": "public",
+      "url": "https://university-kpi-workshop-app-pnvyv78rfapsbvpeayhlye.streamlit.app/",
+      "member_only": true,
       "summary": "대학알리미 공시 지표와 Structural Peer를 바탕으로 대학별 KPI와 목표값을 추천합니다.",
       "features": [
         "대학명 검색·선택",
@@ -14,7 +15,7 @@
         "개선·유지·성장·전략 검토 KPI 구분",
         "3개년 실적 비교 및 2027년 목표값"
       ],
-      "guide": "공개 실행 주소가 준비되면 이 카드에서 바로 열 수 있습니다. 소스코드와 데이터는 별도 Private 저장소에서 관리합니다."
+      "guide": "홈페이지 로그인 회원에게만 실행 버튼이 보입니다. 실행 화면에서 같은 계정으로 한 번 더 로그인해야 합니다. 소스코드와 데이터는 별도 Private 저장소에서 관리합니다."
     }
   ]
 }

@@ -248,7 +248,7 @@
         return;
       }
       showStatus(status, "회원가입이 완료되었습니다.", "ok");
-      location.href = "index.html";
+      location.href = safeNext();
       return;
     }
 
@@ -299,7 +299,22 @@
       return;
     }
 
-    location.href = "index.html";
+    location.href = safeNext();
+  }
+
+  function safeNext() {
+    var next = new URLSearchParams(location.search).get("next") || "";
+    if (/^[a-z0-9._-]+\.html$/i.test(next)) return next;
+    return "index.html";
+  }
+
+  async function openWorkshop(url) {
+    if (!url) return;
+    if (!global.LabAuth || !global.LabAuth.session || !global.LabAuth.session.user) {
+      location.href = "login.html?next=tools.html";
+      return;
+    }
+    window.open(url, "_blank", "noopener");
   }
 
   function bindForms() {
@@ -316,10 +331,16 @@
     el.hidden = hasConfig();
   }
 
+  function publishSession(session) {
+    global.LabAuth.session = session || null;
+    document.dispatchEvent(new CustomEvent("lab-auth-changed"));
+  }
+
   async function start() {
     showConfigNotice();
     bindForms();
     renderAuthSlot(null);
+    publishSession(null);
 
     var sb = getClient();
     if (!sb) return;
@@ -328,19 +349,37 @@
     if (current.data && current.data.session) {
       await ensureProfile(current.data.session.user);
       renderAuthSlot(current.data.session);
+      publishSession(current.data.session);
     }
 
     sb.auth.onAuthStateChange(function (event, session) {
       renderAuthSlot(session);
+      publishSession(session);
       if (session && session.user && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED")) {
         ensureProfile(session.user);
       }
     });
   }
 
+  var readyResolve;
+  global.LabAuth = {
+    session: null,
+    getClient: getClient,
+    openWorkshop: openWorkshop,
+    ready: new Promise(function (resolve) {
+      readyResolve = resolve;
+    })
+  };
+
+  function finishStart() {
+    return start().then(function () {
+      readyResolve();
+    });
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
+    document.addEventListener("DOMContentLoaded", finishStart);
   } else {
-    start();
+    finishStart();
   }
 })(window);
