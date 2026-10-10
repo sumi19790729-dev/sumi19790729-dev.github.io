@@ -27,40 +27,59 @@
       <div class="wrap">
         <p class="kicker">Community</p>
         <h1>Q&amp;A</h1>
-        <p class="lead">로그인 회원이 질문하고 관리자가 답변하는 게시판입니다. Supabase 연결과 검증이 끝나기 전에는 질문을 받지 않습니다.</p>
+        <p class="lead">로그인 회원이 질문하고 관리자가 답변합니다. 관리자가 공개를 승인한 글만 방문자에게 보입니다.</p>
       </div>
     </section>
     <section>
       <div class="wrap">
-        <div class="notice">
-          Q&amp;A는 아직 활성화되지 않았습니다. Supabase 무료 프로젝트와 관리자 이메일이 필요합니다.
-          회원 등급이나 결제는 두지 않습니다. 검증이 끝나기 전에는 질문 등록을 열지 않습니다.
+        <div class="notice" data-qa-notice>게시판을 준비하고 있습니다.</div>
+
+        <div class="card qa-compose" data-qa-guest>
+          <h2>질문하기</h2>
+          <p class="field-hint">로그인 후 이용할 수 있습니다. 로그인하면 이 페이지로 돌아옵니다.</p>
+          <a class="btn" href="login.html?next=qa.html">로그인</a>
         </div>
-        <div class="qa-list" style="margin-top:18px">
-          <article class="qa-item">
-            <strong>예정: 로그인 회원 질문</strong>
-            제목, 내용, 관련 Agentic AI를 선택해 등록합니다. 미로그인 시 로그인 화면으로 안내합니다.
-          </article>
-          <article class="qa-item">
-            <strong>예정: 관리자 답변·공개</strong>
-            관리자만 답변하고 공개 여부를 정합니다. 승인된 글만 방문자에게 보입니다.
-          </article>
-          <article class="qa-item">
-            <strong>예정: 내 질문</strong>
-            회원은 본인 질문과 답변 대기/완료 상태를 확인합니다.
-          </article>
+
+        <div class="card qa-compose" data-qa-compose hidden>
+          <h2>질문하기</h2>
+          <form class="auth-form" data-qa-form novalidate>
+            <label for="qa-title">질문 제목</label>
+            <input id="qa-title" name="title" type="text" maxlength="120" required>
+
+            <label for="qa-related">관련 AI</label>
+            <select id="qa-related" name="related_ai" data-qa-related required></select>
+
+            <label for="qa-body">질문 내용</label>
+            <textarea id="qa-body" name="body" rows="6" maxlength="4000" required></textarea>
+
+            <p class="field-hint">제목, 내용, 작성일, 답변 상태, 공개 여부가 표시됩니다. 이메일은 공개되지 않습니다.</p>
+            <button class="btn" type="submit">질문 등록</button>
+          </form>
+        </div>
+
+        <div class="qa-toolbar">
+          <button type="button" class="active" data-qa-filter="public">공개 질문</button>
+          <button type="button" data-qa-filter="mine" hidden>내 질문</button>
+          <button type="button" data-qa-filter="admin" hidden>전체 관리</button>
+        </div>
+
+        <p class="form-status" data-qa-status hidden></p>
+        <div class="qa-list" data-qa-list>
+          <article class="qa-item"><strong>질문을 불러오는 중입니다.</strong></article>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="wrap">개인정보 수집은 이 단계에서 하지 않습니다.</div>
+    <div class="wrap">공개 게시글에는 회원 이메일을 표시하지 않습니다. 관리자 권한은 브라우저가 아니라 Supabase 역할로 확인합니다.</div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/member-writes.js"></script>
+  <script src="assets/js/qa-model.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/nav.js"></script>
+  <script src="assets/js/qa.js"></script>
 </body>
 </html>

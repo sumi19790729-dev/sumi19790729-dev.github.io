@@ -54,10 +54,35 @@
     return supabase.from('questions').insert(payload).select().single();
   }
 
+  function fetchIsAdmin(supabase) {
+    return supabase.rpc('is_admin');
+  }
+
+  function replyToQuestion(supabase, questionId, body) {
+    return supabase.rpc('admin_reply_to_question', {
+      p_question_id: questionId,
+      p_body: body
+    });
+  }
+
+  function setQuestionPublic(supabase, questionId, isPublic) {
+    return supabase.rpc('admin_set_question_public', {
+      p_question_id: questionId,
+      p_is_public: isPublic
+    });
+  }
+
   global.MemberWrites = {
     profileInsertPayload: profileInsertPayload,
     questionInsertPayload: questionInsertPayload,
     insertOwnProfile: insertOwnProfile,
-    insertOwnQuestion: insertOwnQuestion
+    insertOwnQuestion: insertOwnQuestion,
+    fetchIsAdmin: fetchIsAdmin,
+    replyToQuestion: replyToQuestion,
+    setQuestionPublic: setQuestionPublic
   };
-})(window);
+})(typeof window !== 'undefined' ? window : globalThis);
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = globalThis.MemberWrites;
+}

@@ -164,7 +164,10 @@ h2 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 18px; }
 }
 .auth-form input[type="text"],
 .auth-form input[type="email"],
-.auth-form input[type="password"] {
+.auth-form input[type="password"],
+.auth-form textarea,
+.auth-form select,
+.qa-admin textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--line);
@@ -208,6 +211,58 @@ h2 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 18px; }
 .qa-list { display: grid; gap: 12px; }
 .qa-item { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
 .qa-item strong { display: block; margin-bottom: 6px; }
+.qa-compose { margin-top: 18px; }
+.qa-compose h2 { margin-bottom: 8px; font-size: 20px; }
+.qa-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 16px;
+}
+.qa-toolbar button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.qa-toolbar button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: #c9d6e6;
+}
+.qa-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.qa-body { white-space: pre-wrap; word-break: break-word; }
+.qa-answer {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--soft);
+  border-radius: 10px;
+}
+.qa-admin {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.qa-admin-author { margin: 8px 0 12px; color: var(--muted); font-size: 14px; }
+.qa-admin-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn.btn-secondary {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.badge.mine { background: var(--accent-soft); color: var(--accent); }
 
 footer {
   border-top: 1px solid var(--line);
