@@ -1,59 +1,45 @@
-# Supabase 무료 프로젝트 설정 (C안)
+# Supabase 무료 프로젝트 설정 (회원 인증 + Q&A)
 
-이 문서는 회원 인증을 연결하기 **전**에 필요한 계정·프로젝트 생성 절차다.  
-API 키를 홈페이지나 Streamlit에 넣는 단계는 이 문서를 완료한 뒤 별도 승인으로 진행한다.
+이 문서는 홈페이지에 키를 넣기 **전** 절차다.  
+검증이 끝나기 전에는 Q&A를 활성화 완료로 표시하지 않는다.
 
-유료 플랜은 신청하지 않는다. KPI 원본·백업·`workshop_deploy`·기존 Private 저장소는 변경하지 않는다.
+유료 플랜은 신청하지 않는다. KPI 원본·백업·`workshop_deploy`·기존 Private 저장소는 변경하지 않는다.  
+`service_role` 키는 GitHub Pages나 채팅에 넣지 않는다.
 
-## 만들 것
-
-1. Supabase 무료 프로젝트 1개
-2. 이메일 회원가입/로그인 (비밀번호는 Supabase가 보관)
-3. 회원 프로필 테이블: 이메일, 이름, 소속기관, 업무 분야, 개인정보 동의 시각
-4. 나중에 홈페이지와 Streamlit이 **같은 프로젝트**를 쓰도록 할 주소·키
-
-나중에 받을 값(채팅에 붙여 넣을 것):
+나중에 채팅에 붙여 넣을 값:
 
 - Project URL (`https://xxxx.supabase.co`)
 - `anon` `public` API key
+- 관리자로 지정할 이메일 주소
 
-`service_role` 키는 절대 홈페이지·GitHub·채팅에 올리지 않는다.
+## 1. 계정과 Free 프로젝트
 
-## 1. 계정 만들기
+1. https://supabase.com → GitHub(`sumi19790729-dev`)로 가입/로그인
+2. 요금제 **Free** 유지
+3. **New project** 이름 예: `ai-research-lab`
+4. Database password는 안전한 곳에만 보관
+5. Region 예: Northeast Asia
+6. 상태가 `Healthy`가 될 때까지 대기
 
-1. https://supabase.com 접속
-2. **Start your project** → GitHub 계정(`sumi19790729-dev`)으로 가입/로그인해도 된다
-3. 조직(Organization)이 없으면 개인 조직을 만든다
-4. 요금제는 **Free**를 유지한다
+## 2. 이메일 인증
 
-## 2. 프로젝트 만들기
-
-1. **New project**
-2. 이름 예: `ai-research-lab`
-3. Database password를 생성해 **별도 안전한 곳에만** 저장한다. 홈페이지에 넣지 않는다
-4. Region은 가까운 곳(예: Northeast Asia)을 고른다
-5. **Create new project** 후 상태가 `Healthy`가 될 때까지 기다린다
-
-## 3. 이메일 인증 켜기
-
-1. 왼쪽 **Authentication** → **Sign In / Providers**
-2. **Email**을 Enabled로 둔다
-3. 권장 설정
-   - Confirm email: **On** (이메일 인증 후 로그인)
-   - Secure password change: On
-4. Google/GitHub 등 소셜 로그인은 이 단계에서는 켜지 않는다
-5. **Authentication** → **URL Configuration**
+1. **Authentication → Sign In / Providers → Email** Enabled
+2. Confirm email: **On**
+3. 소셜 로그인은 이 단계에서 끄고 둔다
+4. **Authentication → URL Configuration**
    - Site URL: `https://sumi19790729-dev.github.io`
-   - Redirect URLs에 아래를 추가한다
+   - Redirect URLs:
      - `https://sumi19790729-dev.github.io/**`
-     - `http://localhost:8501/**` (로컬 Streamlit 시험용)
-     - Streamlit 공개 주소는 아직 없으므로 배포 승인 후 추가한다
+     - `http://localhost:8501/**`
 
-## 4. 프로필 테이블
+## 3. 회원·관리자·Q&A 테이블 (한 번에 실행)
 
-**SQL Editor**에서 아래를 실행한다.
+**SQL Editor**에서 아래를 실행한다.  
+`is_admin`은 회원이 스스로 바꿀 수 없다. 관리자 지정은 4번 SQL로만 한다.
 
 ```sql
+create extension if not exists pgcrypto;
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null,
@@ -61,48 +47,148 @@ create table if not exists public.profiles (
   organization text not null,
   work_field text not null,
   privacy_agreed_at timestamptz not null,
+  is_admin boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-alter table public.profiles enable row level security;
+create table if not exists public.questions (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references public.profiles (id) on delete cascade,
+  title text not null,
+  body text not null,
+  related_ai text not null,
+  status text not null default 'pending' check (status in ('pending', 'answered')),
+  is_public boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
-create policy "own profile read"
+create table if not exists public.answers (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.questions (id) on delete cascade,
+  admin_id uuid not null references public.profiles (id) on delete restrict,
+  body text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce((select p.is_admin from public.profiles p where p.id = auth.uid()), false);
+$$;
+
+alter table public.profiles enable row level security;
+alter table public.questions enable row level security;
+alter table public.answers enable row level security;
+
+-- 프로필: 본인만 읽기/가입 시 삽입. is_admin은 클라이언트가 수정 못 함.
+create policy "profiles_select_own"
   on public.profiles for select
   using (auth.uid() = id);
 
-create policy "own profile insert"
+create policy "profiles_insert_own"
   on public.profiles for insert
-  with check (auth.uid() = id);
+  with check (
+    auth.uid() = id
+    and is_admin = false
+  );
 
-create policy "own profile update"
+create policy "profiles_update_own_nonadmin"
   on public.profiles for update
   using (auth.uid() = id)
-  with check (auth.uid() = id);
+  with check (
+    auth.uid() = id
+    and is_admin = (select p.is_admin from public.profiles p where p.id = auth.uid())
+  );
+
+-- 질문: 공개 승인분은 누구나 열람. 본인 질문은 본인 조회. 관리자는 전체 조회.
+create policy "questions_select_public_or_own_or_admin"
+  on public.questions for select
+  using (is_public = true or author_id = auth.uid() or public.is_admin());
+
+create policy "questions_insert_own"
+  on public.questions for insert
+  with check (
+    auth.uid() = author_id
+    and is_public = false
+    and status = 'pending'
+  );
+
+create policy "questions_update_own_content"
+  on public.questions for update
+  using (author_id = auth.uid() and not public.is_admin())
+  with check (
+    author_id = auth.uid()
+    and is_public = (select q.is_public from public.questions q where q.id = questions.id)
+    and status = (select q.status from public.questions q where q.id = questions.id)
+  );
+
+create policy "questions_update_admin"
+  on public.questions for update
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- 답변: 공개 질문의 답변은 누구나. 본인 질문의 답변은 본인. 작성은 관리자만.
+create policy "answers_select_visible"
+  on public.answers for select
+  using (
+    public.is_admin()
+    or exists (
+      select 1 from public.questions q
+      where q.id = answers.question_id
+        and (q.is_public = true or q.author_id = auth.uid())
+    )
+  );
+
+create policy "answers_insert_admin"
+  on public.answers for insert
+  with check (public.is_admin() and admin_id = auth.uid());
+
+create policy "answers_update_admin"
+  on public.answers for update
+  using (public.is_admin())
+  with check (public.is_admin());
 ```
 
-회원 등급 컬럼은 만들지 않는다. 가입된 사용자는 모두 동일하게 AI를 쓰게 할 예정이다.
+`pending` = 답변 대기, `answered` = 답변 완료.  
+`is_public`은 관리자만 true로 바꿀 수 있다. 화면에서 버튼을 숨기는 것만으로 권한을 주지 않는다.
 
-Q&A 테이블은 인증이 동작한 뒤 다음 단계에서 추가한다.
+회원 등급 컬럼은 두지 않는다. `is_admin`은 운영자 여부만 표시한다.
+
+## 4. 관리자 지정 (프로젝트 생성 후)
+
+1. 홈페이지 회원가입이 연결되기 전이면, Supabase **Authentication**에서 관리자용 사용자를 하나 만든다
+2. 해당 이메일로 한 번 로그인(또는 메일 확인)한 뒤 프로필이 생기는 구조가 연결되면, SQL로만 관리자를 지정한다
+
+```sql
+update public.profiles
+set is_admin = true
+where email = '관리자이메일@example.com';
+```
+
+이 이메일을 채팅에 알려 주면, 연결 단계에서 위 SQL을 확정해 드린다.  
+일반 회원이 `is_admin`을 올리는 UPDATE는 RLS가 막는다.
 
 ## 5. 키 확인
 
-1. **Project Settings** → **API Keys**
-2. 기록할 값
-   - Project URL
-   - `anon` `public` key
-3. `service_role`은 서버 전용이다. GitHub Pages, Streamlit secrets 초안, 채팅에 넣지 않는다
+1. **Project Settings → API Keys**
+2. 채팅에 보낼 값: Project URL, `anon` `public` key
+3. `service_role`은 로컬 관리용으로만 보관한다
 
-## 6. 이메일 한도 (Free)
+## 6. 그다음 구현 (키와 관리자 이메일을 받은 뒤)
 
-무료 플랜은 인증 메일 발송 수에 한도가 있다. 워크숍·소규모 연구 공개에는 보통 충분하다.  
-한도를 넘기면 유료 전환 없이, 인증 메일 제공자만 나중에 검토하면 된다.
+- 회원가입·로그인·로그아웃·탈퇴·개인정보 동의
+- Q&A 목록(공개분만), 질문 작성(로그인 필수), 내 질문, 관리자 답변·공개
+- GitHub Pages 배포 후 회원/관리자 계정으로 검증
+- 검증 전에는 Q&A를 활성화 완료로 표시하지 않음
+- Streamlit 인증 가드는 별도 배포 사본에서 진행 (기존 Private 저장소 보존)
 
-## 다음 승인 후에 할 일 (지금은 하지 않음)
+## 무료 플랜 참고
 
-- 홈페이지에 회원가입·로그인·로그아웃·탈퇴 화면 연결
-- 인증 전용 배포 사본과 새 Private 저장소에 Streamlit 인증 가드만 추가
-- Streamlit Community Cloud 연결 (Public URL이어도 앱 안에서 로그인 검사)
-- 실행 URL을 홈페이지에 등록
-
-위 단계에는 Project URL과 `anon` 키가 필요하다.
+인증 메일 발송 수와 DB 용량에 한도가 있다. 소규모 연구 플랫폼이면 보통 충분하다.
