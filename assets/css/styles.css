@@ -1,0 +1,160 @@
+:root {
+  --bg: #ffffff;
+  --ink: #1a1d21;
+  --muted: #5b616b;
+  --line: #e6e8ec;
+  --soft: #f6f7f9;
+  --accent: #1f4b7a;
+  --accent-soft: #e8eef5;
+  --ok: #1f6b4a;
+  --wait: #8a5a12;
+  --max: 1080px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  line-height: 1.65;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap { width: min(var(--max), calc(100% - 40px)); margin: 0 auto; }
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  gap: 16px;
+}
+.brand {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.brand:hover { text-decoration: none; }
+.brand span { display: block; font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; }
+
+nav { display: flex; gap: 22px; }
+nav a { color: var(--muted); font-size: 15px; }
+nav a:hover, nav a.active { color: var(--ink); text-decoration: none; }
+
+.menu-btn {
+  display: none;
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.hero { padding: 72px 0 48px; }
+.kicker {
+  color: var(--accent);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+h1 { font-size: clamp(32px, 5vw, 46px); line-height: 1.25; letter-spacing: -0.03em; margin: 0 0 16px; }
+.lead { font-size: 18px; color: var(--muted); max-width: 40rem; }
+
+.grid { display: grid; gap: 16px; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  background: #fff;
+}
+.card h3 { margin: 0 0 8px; font-size: 18px; }
+.card p { margin: 0; color: var(--muted); }
+
+section { padding: 28px 0 56px; }
+h2 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 18px; }
+
+.tool {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.tool-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.tool h3 { margin: 0 0 6px; font-size: 22px; }
+.meta { color: var(--muted); font-size: 14px; }
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge.preparing { background: #fff4e0; color: var(--wait); }
+.badge.public { background: #e8f6ee; color: var(--ok); }
+.badge.private { background: var(--soft); color: var(--muted); }
+.features { margin: 14px 0 0; padding-left: 18px; color: var(--ink); }
+.guide { margin-top: 16px; padding: 14px; background: var(--soft); border-radius: 10px; color: var(--muted); }
+.btn {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+}
+.btn[aria-disabled="true"], .btn.disabled {
+  background: #c5cad3;
+  pointer-events: none;
+}
+
+.notice {
+  background: var(--accent-soft);
+  border-radius: 12px;
+  padding: 16px 18px;
+  color: #27445f;
+}
+
+.qa-list { display: grid; gap: 12px; }
+.qa-item { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+.qa-item strong { display: block; margin-bottom: 6px; }
+
+footer {
+  border-top: 1px solid var(--line);
+  padding: 28px 0 40px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .menu-btn { display: block; }
+  nav {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 64px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  nav.open { display: flex; }
+  .tool-head { flex-direction: column; }
+}
