@@ -49,9 +49,36 @@ a:hover { text-decoration: underline; }
 .brand:hover { text-decoration: none; }
 .brand span { display: block; font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; }
 
-nav { display: flex; gap: 22px; }
+nav { display: flex; gap: 22px; margin-left: auto; }
 nav a { color: var(--muted); font-size: 15px; }
 nav a:hover, nav a.active { color: var(--ink); text-decoration: none; }
+
+.auth-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.auth-slot a { color: var(--muted); }
+.auth-slot a:hover { color: var(--ink); text-decoration: none; }
+.auth-user {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.auth-logout {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+}
 
 .menu-btn {
   display: none;
@@ -129,6 +156,55 @@ h2 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 18px; }
   color: #27445f;
 }
 
+.auth-form { max-width: 32rem; }
+.auth-form label {
+  display: block;
+  margin: 16px 0 6px;
+  font-weight: 600;
+}
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font: inherit;
+}
+.auth-form .btn {
+  width: 100%;
+  text-align: center;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.auth-form .btn:disabled {
+  background: #c5cad3;
+  cursor: not-allowed;
+}
+.field-hint, .form-links {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+.consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-weight: 500;
+  color: var(--muted);
+}
+.consent input { margin-top: 5px; }
+.form-status {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.form-status.error { background: #fdecec; color: #9b1c1c; }
+.form-status.ok { background: #e8f6ee; color: var(--ok); }
+
 .qa-list { display: grid; gap: 12px; }
 .qa-item { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
 .qa-item strong { display: block; margin-bottom: 6px; }
@@ -142,9 +218,11 @@ footer {
 
 @media (max-width: 800px) {
   .grid-3 { grid-template-columns: 1fr; }
-  .menu-btn { display: block; }
+  .menu-btn { display: block; margin-left: auto; }
+  .auth-user { display: none; }
   nav {
     display: none;
+    margin-left: 0;
     position: absolute;
     right: 20px;
     top: 64px;

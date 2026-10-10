@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>로그인 · AI Research Lab</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="login">
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">AI Research Lab<span>Personal Agentic AI Platform</span></a>
+      <button class="menu-btn" type="button" data-menu aria-label="메뉴">메뉴</button>
+      <nav>
+        <a href="index.html" data-page="home">Home</a>
+        <a href="tools.html" data-page="tools">AI Tools</a>
+        <a href="qa.html" data-page="qa">Q&amp;A</a>
+        <a href="about.html" data-page="about">About</a>
+      </nav>
+      <div class="auth-slot" data-auth-slot></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <p class="kicker">Account</p>
+        <h1>로그인</h1>
+        <p class="lead">가입한 이메일과 비밀번호로 로그인합니다. 세션은 이 브라우저에 유지됩니다.</p>
+      </div>
+    </section>
+    <section>
+      <div class="wrap">
+        <div class="notice" data-config-notice hidden>
+          assets/js/supabase-config.js에 Project URL과 publishable(anon) key를 넣어야 로그인할 수 있습니다.
+        </div>
+        <form class="auth-form card" data-auth-form="login" novalidate>
+          <label for="email">이메일</label>
+          <input id="email" name="email" type="email" autocomplete="username" required>
+
+          <label for="password">비밀번호</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+          <p class="form-status" data-auth-status hidden></p>
+          <button class="btn" type="submit">로그인</button>
+          <p class="form-links">계정이 없으면 <a href="signup.html">회원가입</a>해 주세요. 이메일 인증 후의 이동 화면도 여기입니다.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">비밀번호와 비밀키는 홈페이지 코드에 넣지 않습니다.</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/member-writes.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/nav.js"></script>
+</body>
+</html>

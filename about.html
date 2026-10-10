@@ -18,6 +18,7 @@
         <a href="qa.html" data-page="qa">Q&amp;A</a>
         <a href="about.html" data-page="about">About</a>
       </nav>
+      <div class="auth-slot" data-auth-slot></div>
     </div>
   </header>
 
@@ -44,7 +45,7 @@
         </article>
         <article class="card">
           <h3>연락</h3>
-          <p>Q&amp;A와 회원 기능이 열리기 전에는 이 홈페이지에서 개인정보를 받지 않습니다.</p>
+          <p>회원가입 시 이름, 이메일, 소속기관, 업무분야를 받습니다. Q&amp;A는 아직 열지 않습니다.</p>
         </article>
       </div>
     </section>
@@ -53,6 +54,10 @@
   <footer>
     <div class="wrap">AI Research Lab</div>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/member-writes.js"></script>
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/nav.js"></script>
 </body>
 </html>
