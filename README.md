@@ -6,6 +6,7 @@
 - 메뉴: Home, AI Tools, Q&A, About
 - AI 목록: `data/tools.json`
 - 추가 방법: `docs/ADD_AI.md`
+- 회원 인증 준비: `docs/SUPABASE_SETUP.md`
 
 이 저장소에는 홈페이지 소개와 링크만 둡니다. KPI 추천 AI 원본, 백업, workshop_deploy, Private 실행 저장소의 소스와 데이터는 포함하지 않습니다.
 
