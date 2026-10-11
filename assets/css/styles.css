@@ -155,6 +155,8 @@ h2 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 18px; }
   padding: 16px 18px;
   color: #27445f;
 }
+.notice p { margin: 0 0 12px; }
+.notice p:last-child { margin-bottom: 0; }
 
 .auth-form { max-width: 32rem; }
 .auth-form label {

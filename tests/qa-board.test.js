@@ -67,6 +67,16 @@ test('admin helpers only call existing RPCs', function () {
   ]);
 });
 
+test('related category filter matches only the requested service', function () {
+  assert.strictEqual(QaModel.relatedFromLocation('?related=yeokryang-ieum'), 'yeokryang-ieum');
+  assert.strictEqual(QaModel.relatedFromLocation(''), '');
+  assert.strictEqual(QaModel.questionMatchesRelated({ related_ai: 'yeokryang-ieum' }, 'yeokryang-ieum'), true);
+  assert.strictEqual(QaModel.questionMatchesRelated({ related_ai: 'homepage' }, 'yeokryang-ieum'), false);
+  assert.strictEqual(QaModel.questionMatchesRelated({ related_ai: 'homepage' }, ''), true);
+  var label = QaModel.relatedAiLabel('yeokryang-ieum', [{ id: 'yeokryang-ieum', name: '역량이음' }]);
+  assert.strictEqual(label, '역량이음');
+});
+
 test('guest question select omits author_id', function () {
   assert.strictEqual(QaModel.questionSelect('guest').indexOf('author_id'), -1);
   assert.ok(QaModel.questionSelect('member').indexOf('author_id') !== -1);

@@ -3,6 +3,7 @@
   var BODY_MAX = 4000;
   var state = {
     filter: 'public',
+    related: '',
     isAdmin: false,
     userId: null,
     tools: [],
@@ -100,6 +101,21 @@
         return '<option value="' + model().escapeHtml(item.id) + '">' + model().escapeHtml(item.name) + '</option>';
       })
       .join('');
+    if (state.related && options.some(function (item) { return item.id === state.related; })) {
+      select.value = state.related;
+    }
+  }
+
+  function renderRelatedNote() {
+    var note = el('[data-qa-related-note]');
+    if (!note) return;
+    if (!state.related) {
+      note.hidden = true;
+      note.textContent = '';
+      return;
+    }
+    note.hidden = false;
+    note.textContent = '카테고리: ' + model().relatedAiLabel(state.related, state.tools);
   }
 
   function renderFilters() {
@@ -115,6 +131,7 @@
   }
 
   function matchesFilter(question) {
+    if (!model().questionMatchesRelated(question, state.related)) return false;
     if (!model().visibleToViewer(question, viewer())) return false;
     if (state.filter === 'public') return question.is_public === true;
     if (state.filter === 'mine') return question.author_id === state.userId;
@@ -222,6 +239,7 @@
   function renderAll() {
     renderNotice();
     renderCompose();
+    renderRelatedNote();
     renderFilters();
     renderList();
   }
@@ -345,6 +363,7 @@
       return;
     }
     form.reset();
+    renderCompose();
     state.filter = 'mine';
     showStatus('질문을 등록했습니다. 공개 승인은 관리자가 합니다.', 'ok');
     await loadBoard();
@@ -431,6 +450,7 @@
   }
 
   async function start() {
+    state.related = model().relatedFromLocation(window.location.search);
     bind();
     await loadTools();
     renderAll();

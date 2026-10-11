@@ -14,7 +14,9 @@ function renderTool(tool) {
   const loggedIn = isLoggedIn();
   const features = (tool.features || []).map((item) => `<li>${item}</li>`).join("");
   let action = `<span class="btn disabled" aria-disabled="true">실행 URL 준비 중</span>`;
-  if (memberOnly && !loggedIn) {
+  if (tool.page) {
+    action = `<a class="btn" href="${tool.page}">안내 보기</a>`;
+  } else if (memberOnly && !loggedIn) {
     action =
       `<p class="field-hint">로그인 후 이용할 수 있습니다.</p>` +
       `<a class="btn" href="login.html?next=tools.html">로그인</a>`;

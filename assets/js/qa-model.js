@@ -64,6 +64,16 @@
     return items;
   }
 
+  function relatedFromLocation(search) {
+    var params = new URLSearchParams(String(search || ''));
+    return params.get('related') || '';
+  }
+
+  function questionMatchesRelated(question, relatedId) {
+    if (!relatedId) return true;
+    return Boolean(question) && question.related_ai === relatedId;
+  }
+
   function relatedAiLabel(id, tools) {
     var found = relatedAiOptions(tools).filter(function (item) {
       return item.id === id;
@@ -174,6 +184,8 @@
     formatDate: formatDate,
     escapeHtml: escapeHtml,
     relatedAiOptions: relatedAiOptions,
+    relatedFromLocation: relatedFromLocation,
+    questionMatchesRelated: questionMatchesRelated,
     relatedAiLabel: relatedAiLabel,
     visibleToViewer: visibleToViewer,
     publicSafeQuestion: publicSafeQuestion,
