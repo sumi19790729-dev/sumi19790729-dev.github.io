@@ -273,6 +273,13 @@ footer {
   color: var(--muted);
   font-size: 14px;
 }
+.visit-counter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 12px;
+}
+.visit-counter span { min-width: 0; }
 
 @media (max-width: 800px) {
   .grid-3 { grid-template-columns: 1fr; }
