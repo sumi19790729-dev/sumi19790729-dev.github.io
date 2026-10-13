@@ -19,41 +19,37 @@
   }
 
   function emailRedirectTo() {
-    return siteOrigin() + "/login.html";
+    return siteOrigin() + "/";
+  }
+
+  function statusApi() {
+    return global.AuthStatus || null;
   }
 
   function friendlyError(error) {
+    var api = statusApi();
+    if (api) return api.classifyAuthError(error).message;
     var raw = (error && (error.message || error.error_description || error.msg)) || "";
-    var text = String(raw).toLowerCase();
-    if (!raw) return "처리 중 오류가 났습니다. 잠시 후 다시 시도해 주세요.";
-    if (text.indexOf("failed to fetch") !== -1 || text.indexOf("network") !== -1) {
-      return "서버에 연결하지 못했습니다. 네트워크 상태를 확인해 주세요.";
+    return raw || "처리 중 오류가 났습니다. 잠시 후 다시 시도해 주세요.";
+  }
+
+  function showBanner(message, kind) {
+    var main = document.querySelector("main");
+    if (!main || !message) return;
+    var el = document.querySelector("[data-auth-banner]");
+    if (!el) {
+      var section = document.createElement("section");
+      var wrap = document.createElement("div");
+      wrap.className = "wrap";
+      el = document.createElement("p");
+      el.setAttribute("data-auth-banner", "");
+      wrap.appendChild(el);
+      section.appendChild(wrap);
+      main.insertBefore(section, main.firstChild);
     }
-    if (text.indexOf("invalid login credentials") !== -1) {
-      return "이메일 또는 비밀번호가 올바르지 않습니다.";
-    }
-    if (text.indexOf("email not confirmed") !== -1) {
-      return "이메일 인증을 완료한 뒤 로그인해 주세요. 받은편지함과 스팸함을 확인해 주세요.";
-    }
-    if (text.indexOf("already registered") !== -1 || text.indexOf("already been registered") !== -1) {
-      return "이미 가입된 이메일입니다. 로그인해 주세요.";
-    }
-    if (text.indexOf("password") !== -1 && text.indexOf("least") !== -1) {
-      return "비밀번호는 6자 이상이어야 합니다.";
-    }
-    if (text.indexOf("invalid email") !== -1) {
-      return "이메일 형식이 올바르지 않습니다.";
-    }
-    if (text.indexOf("signup is disabled") !== -1) {
-      return "현재 회원가입이 열려 있지 않습니다.";
-    }
-    if (text.indexOf("rate limit") !== -1 || text.indexOf("too many") !== -1) {
-      return "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.";
-    }
-    if (text.indexOf("user already exists") !== -1) {
-      return "이미 가입된 이메일입니다. 로그인해 주세요.";
-    }
-    return raw;
+    el.hidden = false;
+    el.className = "form-status " + (kind === "ok" || kind === "pending" ? kind : "error");
+    el.textContent = message;
   }
 
   function showStatus(el, message, kind) {
@@ -241,23 +237,23 @@
       return;
     }
 
-    if (result.data.session && result.data.user) {
+    var outcome = statusApi()
+      ? statusApi().classifySignupResult(result.data || {})
+      : { kind: "error", message: "가입 결과를 확인하지 못했습니다. 가입이 완료되지 않았습니다." };
+
+    if (outcome.kind === "ok" && result.data.session && result.data.user) {
       var profile = await ensureProfile(result.data.user);
       if (profile.error) {
-        showStatus(status, "가입은 되었지만 회원정보 저장에 실패했습니다. " + friendlyError(profile.error), "error");
+        showStatus(status, "로그인은 되었지만 회원정보 저장에 실패했습니다. " + friendlyError(profile.error), "error");
         return;
       }
-      showStatus(status, "회원가입이 완료되었습니다.", "ok");
+      showStatus(status, outcome.message, "ok");
       location.href = safeNext();
       return;
     }
 
-    showStatus(
-      status,
-      "인증 메일을 보냈습니다. 메일함의 링크를 누르면 가입이 완료됩니다. 스팸함도 확인해 주세요.",
-      "ok"
-    );
-    form.reset();
+    showStatus(status, outcome.message, outcome.kind === "ok" || outcome.kind === "pending" ? outcome.kind : "error");
+    if (outcome.kind === "pending") form.reset();
   }
 
   async function handleLogin(event) {
@@ -337,19 +333,36 @@
   }
 
   async function start() {
+    var callback = statusApi() ? statusApi().readAuthCallback(location.hash, location.search) : null;
+    var callbackNote = statusApi() ? statusApi().callbackMessage(callback) : null;
     showConfigNotice();
     bindForms();
     renderAuthSlot(null);
     publishSession(null);
 
     var sb = getClient();
-    if (!sb) return;
+    if (!sb) {
+      if (callbackNote) showBanner(callbackNote.message, callbackNote.kind);
+      return;
+    }
 
     var current = await sb.auth.getSession();
     if (current.data && current.data.session) {
-      await ensureProfile(current.data.session.user);
+      var ensured = await ensureProfile(current.data.session.user);
       renderAuthSlot(current.data.session);
       publishSession(current.data.session);
+      if (callbackNote && callbackNote.kind === "ok") {
+        if (ensured && ensured.error) {
+          showBanner("로그인은 되었지만 회원정보 저장에 실패했습니다. " + friendlyError(ensured.error), "error");
+        } else {
+          showBanner(callbackNote.message, "ok");
+        }
+      }
+    } else if (callback && callback.type === "signup" && !(callbackNote && callbackNote.kind === "error")) {
+      showBanner("이메일 인증 링크를 처리하지 못했습니다. 로그인되지 않았습니다. 메일의 링크를 다시 눌러 주세요.", "error");
+    }
+    if (callbackNote && callbackNote.kind === "error") {
+      showBanner(callbackNote.message, "error");
     }
 
     sb.auth.onAuthStateChange(function (event, session) {
