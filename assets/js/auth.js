@@ -171,11 +171,33 @@
     }
   }
 
+  function beginSubmit(form) {
+    if (form.dataset.authBusy === "1") return null;
+    form.dataset.authBusy = "1";
+    var button = form.querySelector("[type=submit]");
+    if (button) button.disabled = true;
+    return button;
+  }
+
+  function endSubmit(form, button) {
+    form.dataset.authBusy = "";
+    if (button) button.disabled = false;
+  }
+
   async function handleSignup(event) {
     event.preventDefault();
     var form = event.target;
+    var button = beginSubmit(form);
+    if (!button && form.dataset.authBusy === "1") return;
     var status = form.querySelector("[data-auth-status]");
-    var button = form.querySelector("[type=submit]");
+    try {
+      await submitSignup(form, status, button);
+    } finally {
+      endSubmit(form, button);
+    }
+  }
+
+  async function submitSignup(form, status, button) {
     var email = (form.email.value || "").trim();
     var password = form.password.value || "";
     var passwordConfirm = form.password_confirm.value || "";
@@ -220,7 +242,6 @@
     };
     savePendingProfile(pending);
 
-    button.disabled = true;
     showStatus(status, "가입을 처리하고 있습니다…", "");
     var result = await sb.auth.signUp({
       email: email,
@@ -230,10 +251,10 @@
         data: pending
       }
     });
-    button.disabled = false;
 
     if (result.error) {
-      showStatus(status, friendlyError(result.error), "error");
+      var classified = statusApi() ? statusApi().classifyAuthError(result.error) : { kind: "error", message: friendlyError(result.error) };
+      showStatus(status, classified.message, classified.kind === "pending" ? "pending" : "error");
       return;
     }
 

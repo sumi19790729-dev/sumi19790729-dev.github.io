@@ -28,8 +28,21 @@
     if (code === "email_address_invalid" || text.indexOf("invalid email") !== -1 || text.indexOf("email address") !== -1 && text.indexOf("invalid") !== -1) {
       return { kind: "error", message: "이메일 주소가 올바르지 않습니다. 가입은 완료되지 않았습니다." };
     }
-    if (code === "over_email_send_rate_limit" || text.indexOf("for security purposes") !== -1 || text.indexOf("rate limit") !== -1 || text.indexOf("too many") !== -1) {
-      return { kind: "error", message: "인증 메일을 보내지 못했습니다. 요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요. 가입은 완료되지 않았습니다." };
+    var wait = text.match(/after (\d+) seconds?/);
+    if ((code === "over_email_send_rate_limit" || text.indexOf("for security purposes") !== -1) && wait) {
+      return {
+        kind: "pending",
+        message: "이메일 인증 대기입니다. 같은 주소로 인증 메일을 바로 다시 보내지 못했습니다. 서버는 같은 주소의 재발송을 " + wait[1] + "초 동안 막습니다. " + wait[1] + "초 후에 이 화면에서 한 번만 다시 요청해 주세요. 이미 도착한 메일이 있으면 받은편지함과 스팸함의 링크를 누르면 됩니다. 링크를 누르기 전에는 로그인되지 않습니다."
+      };
+    }
+    if (code === "over_email_send_rate_limit" || text.indexOf("email rate limit exceeded") !== -1) {
+      return {
+        kind: "error",
+        message: "이번 인증 메일은 나가지 않았습니다. 프로젝트 전체 메일 발송 한도에 도달했습니다. 한도가 풀리기 전에 다시 눌러도 메일은 더 나가지 않습니다. 계정이 이미 만들어졌다면 인증 대기이며, 한도가 풀린 뒤 이 화면에서 한 번만 다시 요청해 주세요. 인증 메일의 링크를 누르기 전에는 로그인되지 않습니다."
+      };
+    }
+    if (code === "over_request_rate_limit" || text.indexOf("request rate limit") !== -1) {
+      return { kind: "error", message: "같은 접속에서 요청이 너무 많습니다. 이번 가입 요청은 처리되지 않았습니다. 잠시 후 한 번만 다시 시도해 주세요." };
     }
     if (text.indexOf("error sending") !== -1 || code === "unexpected_failure") {
       return { kind: "error", message: "가입 요청은 서버에 도착했지만 인증 메일 발송에 실패했습니다. 가입은 완료되지 않았습니다." };

@@ -33,13 +33,25 @@ test('unauthorized address is a mail failure', function () {
   assert.ok(result.message.indexOf('보내지 못했습니다') !== -1);
 });
 
-test('email send interval is a failure', function () {
+test('same-address resend wait stays in email verification', function () {
   var result = AuthStatus.classifyAuthError({
     code: 'over_email_send_rate_limit',
     message: 'For security purposes, you can only request this after 48 seconds.'
   });
+  assert.strictEqual(result.kind, 'pending');
+  assert.ok(result.message.indexOf('인증 대기') !== -1);
+  assert.ok(result.message.indexOf('48초') !== -1);
+  assert.strictEqual(result.message.indexOf('가입은 완료되지 않았습니다'), -1);
+});
+
+test('project email cap is not the same-address wait', function () {
+  var result = AuthStatus.classifyAuthError({
+    code: 'over_email_send_rate_limit',
+    message: 'Email rate limit exceeded'
+  });
   assert.strictEqual(result.kind, 'error');
-  assert.ok(result.message.indexOf('완료되지 않았습니다') !== -1);
+  assert.ok(result.message.indexOf('프로젝트 전체') !== -1);
+  assert.ok(result.message.indexOf('인증 대기') !== -1);
 });
 
 test('unconfirmed login stays pending', function () {
