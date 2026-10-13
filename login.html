@@ -27,7 +27,7 @@
       <div class="wrap">
         <p class="kicker">Account</p>
         <h1>로그인</h1>
-        <p class="lead">가입한 이메일과 비밀번호로 로그인합니다. 세션은 이 브라우저에 유지됩니다.</p>
+        <p class="lead">가입한 이메일과 비밀번호로 로그인합니다. 세션은 이 브라우저에 유지됩니다. 기존 이메일 로그인은 유지됩니다.</p>
       </div>
     </section>
     <section>
@@ -35,6 +35,7 @@
         <div class="notice" data-config-notice hidden>
           assets/js/supabase-config.js에 Project URL과 publishable(anon) key를 넣어야 로그인할 수 있습니다.
         </div>
+        <div class="google-slot" data-google-slot hidden></div>
         <form class="auth-form card" data-auth-form="login" novalidate>
           <label for="email">이메일</label>
           <input id="email" name="email" type="email" autocomplete="username" required>
@@ -57,6 +58,7 @@
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/member-writes.js"></script>
   <script src="assets/js/auth-status.js"></script>
+  <script src="assets/js/google-auth.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/nav.js"></script>
 </body>

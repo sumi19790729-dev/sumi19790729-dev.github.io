@@ -53,6 +53,12 @@
     if (text.indexOf("invalid login credentials") !== -1) {
       return { kind: "error", message: "이메일 또는 비밀번호가 올바르지 않습니다. 로그인되지 않았습니다." };
     }
+    if (code === "manual_linking_disabled" || text.indexOf("manual linking is disabled") !== -1) {
+      return { kind: "error", message: "Google 계정 연결이 아직 허용되지 않았습니다. 연결은 완료되지 않았고, 이메일 로그인은 그대로입니다." };
+    }
+    if (code === "identity_already_exists" || text.indexOf("already linked") !== -1) {
+      return { kind: "error", message: "이 Google 계정은 이미 다른 사용자에 연결되어 있습니다. 기존 계정의 사용자 ID와 권한은 바꾸지 않았습니다." };
+    }
     if (text.indexOf("already registered") !== -1 || text.indexOf("already been registered") !== -1 || text.indexOf("user already exists") !== -1) {
       return { kind: "error", message: "이미 가입된 이메일입니다. 로그인해 주세요. 새 가입은 완료되지 않았습니다." };
     }

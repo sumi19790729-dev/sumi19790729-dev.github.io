@@ -130,7 +130,7 @@
 
     var fields = profileFieldsFromUser(user);
     if (!fields.full_name || !fields.organization || !fields.work_field || !fields.privacy_agreed_at) {
-      return { error: { message: "이름, 소속기관, 업무분야, 개인정보 동의가 없습니다. 회원가입을 다시 진행해 주세요." } };
+      return { data: null, error: null, incomplete: true };
     }
 
     var inserted = await global.MemberWrites.insertOwnProfile(sb, fields);
@@ -155,6 +155,7 @@
       var label = session.user.email || "회원";
       slot.innerHTML =
         '<span class="auth-user" title="' + label.replace(/"/g, "") + '">' + label + "</span>" +
+        '<a href="account.html">계정</a>' +
         '<button type="button" class="auth-logout" data-logout>로그아웃</button>';
     });
   }
@@ -368,14 +369,16 @@
     }
 
     var current = await sb.auth.getSession();
-    if (current.data && current.data.session) {
-      var ensured = await ensureProfile(current.data.session.user);
-      renderAuthSlot(current.data.session);
-      publishSession(current.data.session);
+    var session = current.data && current.data.session ? current.data.session : null;
+    var ensured = null;
+    if (session) {
+      ensured = await ensureProfile(session.user);
+      renderAuthSlot(session);
+      publishSession(session);
       if (callbackNote && callbackNote.kind === "ok") {
         if (ensured && ensured.error) {
           showBanner("로그인은 되었지만 회원정보 저장에 실패했습니다. " + friendlyError(ensured.error), "error");
-        } else {
+        } else if (!(ensured && ensured.incomplete)) {
           showBanner(callbackNote.message, "ok");
         }
       }
@@ -384,6 +387,13 @@
     }
     if (callbackNote && callbackNote.kind === "error") {
       showBanner(callbackNote.message, "error");
+    }
+    if (session && ensured && ensured.incomplete && !/account\.html$/i.test(location.pathname)) {
+      location.replace("account.html");
+      return;
+    }
+    if (global.GoogleAuth) {
+      await global.GoogleAuth.mount({ client: sb, session: session });
     }
 
     sb.auth.onAuthStateChange(function (event, session) {

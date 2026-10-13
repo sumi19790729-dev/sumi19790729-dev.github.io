@@ -82,4 +82,16 @@ test('callback error is not success', function () {
   assert.strictEqual(result.kind, 'error');
 });
 
+test('disabled manual linking does not claim the account changed', function () {
+  var result = AuthStatus.classifyAuthError({ code: 'manual_linking_disabled', message: 'Manual linking is disabled' });
+  assert.strictEqual(result.kind, 'error');
+  assert.ok(result.message.indexOf('연결은 완료되지 않았고') !== -1);
+});
+
+test('an already linked Google identity does not change the current account', function () {
+  var result = AuthStatus.classifyAuthError({ code: 'identity_already_exists', message: 'Identity is already linked to another user' });
+  assert.strictEqual(result.kind, 'error');
+  assert.ok(result.message.indexOf('바꾸지 않았습니다') !== -1);
+});
+
 console.log(passed + ' passed');

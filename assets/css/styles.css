@@ -158,6 +158,11 @@ h2 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 18px; }
 .notice p { margin: 0 0 12px; }
 .notice p:last-child { margin-bottom: 0; }
 
+.google-slot { max-width: 32rem; margin-bottom: 16px; }
+.google-slot[hidden] { display: none; }
+.btn-google { width: 100%; text-align: center; border: 0; cursor: pointer; font: inherit; }
+.account-panel { max-width: 40rem; }
+.account-panel .btn { border: 0; cursor: pointer; font: inherit; }
 .auth-form { max-width: 32rem; }
 .auth-form label {
   display: block;
